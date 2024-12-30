@@ -1,0 +1,20 @@
+#   docker network create --driver bridge --subnet=150.50.50.0/24 my-net
+
+services:
+  nginx:
+    restart: always
+    image: nginx:latest
+    container_name: nginx
+    hostname: nginx
+    networks:
+      - my-net
+    volumes:
+     - ./nginx/conf.d:/etc/nginx/conf.d:ro
+     - ./ssl:/etc/nginx/ssl:ro
+    ports:
+     - 8010:80
+     - 8143:443      
+networks:
+  my-net:
+    external: true
+

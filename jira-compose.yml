@@ -1,0 +1,33 @@
+#   docker network create --driver bridge --subnet=150.50.50.0/24 my-net
+
+services:
+  jira:
+    image: atlassian/jira-software:latest
+    restart: always
+    container_name: jira
+    hostname: jira
+    environment:
+      ATL_DB_DRIVER: 'org.postgresql.Driver'
+      ATL_DB_TYPE: 'postgres72'
+      ATL_JDBC_URL: 'jdbc:postgresql://host:port/database'
+      ATL_JDBC_USER: 'username'
+      ATL_JDBC_PASSWORD: 'password'
+      ATL_PROXY_NAME: jira.host.com
+      ATL_PROXY_PORT: 443
+      ATL_TOMCAT_SCHEME: 'https'
+      ATL_TOMCAT_SECURE: 'true'
+      JAVA_OPTS: '-javaagent:/atlassian-agent.jar'
+      JVM_MINIMUM_MEMORY: 512m
+      JVM_MAXIMUM_MEMORY: 2048m
+    volumes:
+      - /data/docker/jira:/var/atlassian/application-data/jira
+      - ./agent/atlassian-agent.bak:/atlassian-agent.jar:ro
+    networks:
+      my-net:
+    ports:
+      - 8050:8080
+
+networks:
+  my-net:
+    external: true
+
