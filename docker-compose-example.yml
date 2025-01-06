@@ -1,0 +1,73 @@
+#   docker network create --driver bridge --subnet=150.50.50.0/24 my-net
+
+services:
+  nginx:
+    restart: always
+    image: nginx:latest
+    container_name: nginx
+    hostname: nginx
+    networks:
+      - my-net
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    ports:
+      - 8010:80
+      - 8143:443
+
+  jira:
+    image: atlassian/jira-software:latest
+    restart: always
+    container_name: jira
+    hostname: jira
+    environment:
+      ATL_DB_DRIVER: 'org.postgresql.Driver'
+      ATL_DB_TYPE: 'postgres72'
+      ATL_JDBC_URL: 'jdbc:postgresql://95.216.222.205:5432/jira'
+      ATL_JDBC_USER: postgres
+      ATL_JDBC_PASSWORD: BJXrGHQ1YM0dcQu
+      ATL_PROXY_NAME: jira.ivmaster.app
+      ATL_PROXY_PORT: 443
+      ATL_TOMCAT_SCHEME: 'https'
+      ATL_TOMCAT_SECURE: 'true'
+      JAVA_OPTS: '-javaagent:/atlassian-agent.jar'
+      JVM_MINIMUM_MEMORY: 512m
+      JVM_MAXIMUM_MEMORY: 2048m
+    volumes:
+      - /data/docker/jira:/var/atlassian/application-data/jira
+      - ./agent/atlassian-agent.bak:/atlassian-agent.jar:ro
+    networks:
+      my-net:
+    ports:
+      - 8050:8080
+
+  confluence:
+    image: atlassian/confluence-server:latest
+    restart: always
+    container_name: confluence
+    hostname: confluence
+    environment:
+      ATL_DB_DRIVER: 'org.postgresql.Driver'
+      ATL_DB_TYPE: 'postgresql'
+      ATL_JDBC_URL: 'jdbc:postgresql://95.216.222.205:5432/confluence'
+      ATL_JDBC_USER: postgres
+      ATL_JDBC_PASSWORD: BJXrGHQ1YM0dcQu
+      ATL_PROXY_NAME: confluence.ivmaster.app
+      ATL_PROXY_PORT: 443
+      ATL_TOMCAT_SCHEME: 'https'
+      ATL_TOMCAT_SECURE: 'true'
+      JAVA_OPTS: '-javaagent:/atlassian-agent.jar'
+      JVM_MINIMUM_MEMORY: 512m
+      JVM_MAXIMUM_MEMORY: 2048m
+    volumes:
+      - /data/docker/confluence:/var/atlassian/application-data/confluence
+      - ./agent/atlassian-agent.bak:/atlassian-agent.jar:ro
+    networks:
+      my-net:
+    ports:
+      - 8090:8090
+      - 8091:8091
+
+networks:
+  my-net:
+    external: true
