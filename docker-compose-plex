@@ -3,7 +3,7 @@ services:
     container_name: aria2-pro
     image: p3terx/aria2-pro
     networks:
-      - jellyfin
+      - plex
     environment:
       - UMASK_SET=022
       - RPC_SECRET=P3TERX
@@ -32,7 +32,7 @@ services:
     container_name: ariang
     image: p3terx/ariang
     networks:
-      - jellyfin
+      - plex
     command: --port 6880 --ipv6
     ports:
       - 6880:6880
@@ -46,7 +46,7 @@ services:
     image: hyperbunny77/realdebridmanager:2022.05.29
     container_name: realdebridmanager
     networks:
-      - jellyfin
+      - plex
     environment:
       - rdmport=5000
     ports:
@@ -62,7 +62,7 @@ services:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
     networks:
-      - jellyfin
+      - plex
     environment:
       - TZ=Asia/Ho_Chi_Minh
     volumes:
@@ -78,7 +78,7 @@ services:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
     networks:
-      - jellyfin
+      - plex
     environment:
       - Asia/Ho_Chi_Minh
     volumes:
@@ -94,29 +94,39 @@ services:
     image: spritsail/jackett
     container_name: jackett
     networks:
-      - jellyfin
+      - plex
     ports:
       - 9117:9117
     volumes:
       - /data/jackett/config:/config
     restart: unless-stopped
 
-  jellyfin:
-    image: lscr.io/linuxserver/jellyfin:latest
-    container_name: jellyfin
+  plex:
+    image: plexinc/pms-docker:latest
+    container_name: plex
     environment:
       - TZ=Asia/Ho_Chi_Minh
+      - ADVERTISE_IP=https://plex.httam.com/
+    networks:
+      - plex
+    ports:
+      - 32400:32400/tcp
+      - 8324:8324/tcp
+      - 32469:32469/tcp
+      - 1900:1900/udp
+      - 32410:32410/udp
+      - 32412:32412/udp
+      - 32413:32413/udp
+      - 32414:32414/udp
     volumes:
-      - /data/jellyfin/config:/config
+      - /data/plex/config:/config
+      - /data/plex/transcode:/transcode
       - /data/downloads-completed/tvshows:/data/tvshows
       - /data/downloads-completed/movies:/data/movies
-    ports:
-      - 8096:8096
     restart: unless-stopped
 
-
 networks:
-  jellyfin:
+  plex:
     driver: "bridge"
     attachable: true
     ipam:
